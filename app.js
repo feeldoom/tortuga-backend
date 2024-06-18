@@ -67,15 +67,15 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-/* const requireAuth = (req, res, next) => {
+const requireAuth = (req, res, next) => {
   if (!req.session.userId) {
-    return res.redirect('/login.html');
+    return res.redirect('https://tortuga-front.vercel.app/login.html');
   }
   next();
-}; */
+};
 
-app.use('/uploads', express.static(uploadsDir));
-app.use('/admin.html', express.static(path.join(__dirname, '../frontend/admin.html')));
+app.use('/uploads', requireAuth, express.static(uploadsDir));
+app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.post('/login', async (req, res) => {
@@ -84,13 +84,13 @@ app.post('/login', async (req, res) => {
 
   if (user) {
     req.session.userId = user._id;
-    return res.redirect('/admin.html');
+    return res.redirect('https://tortuga-front.vercel.app/admin.html');
   } else {
     return res.status(401).send('Invalid login');
   }
 });
 
-app.post('/upload', upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res) => {
+app.post('/upload', requireAuth, upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files uploaded.');
   }
