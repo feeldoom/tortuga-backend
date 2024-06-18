@@ -20,7 +20,8 @@ const serviceAccount = {
   "auth_uri": process.env.FIREBASE_AUTH_URI,
   "token_uri": process.env.FIREBASE_TOKEN_URI,
   "auth_provider_x509_cert_url": process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-  "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL
+  "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL,
+  "universe_domain": process.env.FIREBASE_UNIVERSE_DOMAIN
 };
 
 admin.initializeApp({
@@ -66,12 +67,12 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const requireAuth = (req, res, next) => {
+/* const requireAuth = (req, res, next) => {
   if (!req.session.userId) {
     return res.redirect('/login.html');
   }
   next();
-};
+}; */
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
@@ -89,7 +90,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.post('/upload', requireAuth, upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res) => {
+app.post('/upload', upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files uploaded.');
   }
