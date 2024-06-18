@@ -74,8 +74,8 @@ app.use(express.json());
   next();
 }; */
 
-app.use('/uploads', requireAuth, express.static(uploadsDir));
-app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
+app.use('/uploads', express.static(uploadsDir));
+app.use('/admin.html', express.static(path.join(__dirname, '../frontend/admin.html')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.post('/login', async (req, res) => {
