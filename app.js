@@ -74,6 +74,8 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
+app.use('/admin', requireAuth);
+
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 // app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
 
