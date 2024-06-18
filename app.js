@@ -75,7 +75,12 @@ const requireAuth = (req, res, next) => {
 };
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
-app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
+// app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
+
+app.get('/admin.html', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+});
+
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.post('/login', async (req, res) => {
