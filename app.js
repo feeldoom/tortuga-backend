@@ -133,9 +133,9 @@ app.post('/upload', requireAuth, upload.fields([{ name: 'menu', maxCount: 1 }, {
 
   try {
     await Promise.all(promises);
-    res.redirect('https://tortuga-front.vercel.app/admin.html');
+    res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
   } catch (error) {
-    res.status(500).send('Error uploading files.');
+    res.redirect('https://tortuga-front.vercel.app/admin.html?status=error');
   }
 });
 
