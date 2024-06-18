@@ -132,7 +132,7 @@ app.post('/upload', upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar',
   }
 });
 
-app.get('/pdfs', requireAuth, async (req, res) => {
+app.get('/pdfs', async (req, res) => {
   try {
     const [files] = await bucket.getFiles();
     const pdfFiles = files.filter(file => file.name.endsWith('.pdf')).map(file => file.name);
