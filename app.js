@@ -186,15 +186,20 @@ app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req
     const { title, text } = req.body;
     let photoUrl = null;
 
+    // if (req.file) {
+    //   const photo = req.file;
+    //   const photoName = Date.now() + path.extname(photo.originalname);
+    //   const photoBuffer = photo.buffer;
+    //   await bucket.file(photoName).save(photoBuffer, {
+    //     contentType: photo.mimetype,
+    //     resumable: false
+    //   });
+    //   photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
+    // }
+    
     if (req.file) {
       const photo = req.file;
-      const photoName = Date.now() + path.extname(photo.originalname);
-      const photoBuffer = photo.buffer;
-      await bucket.file(photoName).save(photoBuffer, {
-        contentType: photo.mimetype,
-        resumable: false
-      });
-      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
+      photoUrl = '/uploads/' + photo.filename;
     }
 
     const newPost = new Post({ title, text, photo: photoUrl });
