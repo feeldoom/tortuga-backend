@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const cors = require('cors'); 
 const User = require('./models/user');
 const Post = require('./models/post'); 
 
@@ -51,6 +52,8 @@ const upload = multer({
     }
   }
 });
+
+app.use(cors());
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
