@@ -53,6 +53,27 @@ const upload = multer({
   }
 });
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadPostPhoto = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed.'));
+    }
+  }
+});
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -160,7 +181,7 @@ app.get('/pdfs', async (req, res) => {
 });
 
 // New post
-app.post('/uploadPost', requireAuth, upload.single('photo'), async (req, res) => {
+app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
   try {
     const { title, text } = req.body;
     let photoUrl = null;
