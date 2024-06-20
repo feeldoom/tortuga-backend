@@ -160,7 +160,7 @@ app.get('/pdfs', async (req, res) => {
 });
 
 // New post
-app.post('/posts', requireAuth, upload.single('photo'), async (req, res) => {
+app.post('/uploadPost', requireAuth, upload.single('photo'), async (req, res) => {
   try {
     const { title, text } = req.body;
     let photoUrl = null;
