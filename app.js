@@ -6,6 +6,7 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('./models/user');
+const Post = require('./models/post'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -147,6 +148,79 @@ app.get('/pdfs', async (req, res) => {
   } catch (error) {
     console.error('Error getting PDF files:', error);
     res.status(500).json({ message: 'Unable to get PDF files.' });
+  }
+});
+
+// New post
+app.post('/posts', requireAuth, upload.single('photo'), async (req, res) => {
+  try {
+    const { title, text } = req.body;
+    let photoUrl = null;
+
+    if (req.file) {
+      const photo = req.file;
+      const photoName = Date.now() + path.extname(photo.originalname);
+      const photoBuffer = photo.buffer;
+      await bucket.file(photoName).save(photoBuffer, {
+        contentType: photo.mimetype,
+        resumable: false
+      });
+      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
+    }
+
+    const newPost = new Post({ title, text, photo: photoUrl });
+    await newPost.save();
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get all posts
+app.get('/posts', async (req, res) => {
+  try {
+    const posts = await Post.find();
+    res.json(posts);
+  } catch (error) {
+    console.error('Error getting posts:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Post update
+app.put('/posts/:id', requireAuth, upload.single('photo'), async (req, res) => {
+  try {
+    const { title, text } = req.body;
+    let photoUrl = null;
+
+    if (req.file) {
+      const photo = req.file;
+      const photoName = Date.now() + path.extname(photo.originalname);
+      const photoBuffer = photo.buffer;
+      await bucket.file(photoName).save(photoBuffer, {
+        contentType: photo.mimetype,
+        resumable: false
+      });
+      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(req.params.id, { title, text, photo: photoUrl }, { new: true });
+    res.json(updatedPost);
+  } catch (error) {
+    console.error('Error updating post:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Delete post
+app.delete('/posts/:id', requireAuth, async (req, res) => {
+  try {
+    await Post.findByIdAndDelete(req.params.id);
+    res.status(204).end();
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
