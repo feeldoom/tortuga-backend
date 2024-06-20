@@ -178,10 +178,10 @@ app.post('/posts', requireAuth, upload.single('photo'), async (req, res) => {
 
     const newPost = new Post({ title, text, photo: photoUrl });
     await newPost.save();
-    res.status(201).json(newPost);
+    res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
   } catch (error) {
     console.error('Error creating post:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.redirect('https://tortuga-front.vercel.app/admin.html?status=error');
   }
 });
 
