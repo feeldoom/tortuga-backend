@@ -254,19 +254,19 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/keepalive', (req, res) => {
-  res.sendStatus(200);
-});
+// app.get('/keepalive', (req, res) => {
+//   res.sendStatus(200);
+// });
 
-// Schedule the keepalive task
-cron.schedule('*/25 * * * *', async () => {
-  try {
-    const response = await fetch(`http://localhost:${PORT}/keepalive`);
-    console.log('Keepalive response:', response.status);
-  } catch (error) {
-    console.error('Keepalive error:', error);
-  }
-});
+// // Schedule the keepalive task
+// cron.schedule('*/25 * * * *', async () => {
+//   try {
+//     const response = await fetch(`http://localhost:${PORT}/keepalive`);
+//     console.log('Keepalive response:', response.status);
+//   } catch (error) {
+//     console.error('Keepalive error:', error);
+//   }
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
