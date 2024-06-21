@@ -80,6 +80,8 @@ app.use((req, res, next) => {
   next();
 });
 
+headers.set("Access-Control-Allow-Origin", "https://tortuga-front.vercel.app"); 
+
 app.use(cors({
   origin: 'https://tortuga-front.vercel.app',
   credentials: true,
@@ -186,20 +188,15 @@ app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req
     const { title, text } = req.body;
     let photoUrl = null;
 
-    // if (req.file) {
-    //   const photo = req.file;
-    //   const photoName = Date.now() + path.extname(photo.originalname);
-    //   const photoBuffer = photo.buffer;
-    //   await bucket.file(photoName).save(photoBuffer, {
-    //     contentType: photo.mimetype,
-    //     resumable: false
-    //   });
-    //   photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
-    // }
-    
     if (req.file) {
       const photo = req.file;
-      photoUrl = '/uploads/' + photo.filename;
+      const photoName = Date.now() + path.extname(photo.originalname);
+      const photoBuffer = photo.buffer;
+      await bucket.file(photoName).save(photoBuffer, {
+        contentType: photo.mimetype,
+        resumable: false
+      });
+      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
     }
 
     const newPost = new Post({ title, text, photo: photoUrl });
