@@ -80,8 +80,6 @@ app.use((req, res, next) => {
   next();
 });
 
-headers.set("Access-Control-Allow-Origin", "https://tortuga-front.vercel.app"); 
-
 app.use(cors({
   origin: 'https://tortuga-front.vercel.app',
   credentials: true,
