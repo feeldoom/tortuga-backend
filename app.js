@@ -6,6 +6,7 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const cors = require('cors');
+const cron = require('node-cron');
 const User = require('./models/user');
 const Post = require('./models/post'); 
 
@@ -81,7 +82,6 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  // origin: 'https://tortuga-front.vercel.app',
   origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -251,6 +251,20 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error deleting post:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/keepalive', (req, res) => {
+  res.sendStatus(200);
+});
+
+// Schedule the keepalive task
+cron.schedule('*/25 * * * *', async () => {
+  try {
+    const response = await fetch(`http://localhost:${PORT}/keepalive`);
+    console.log('Keepalive response:', response.status);
+  } catch (error) {
+    console.error('Keepalive error:', error);
   }
 });
 
