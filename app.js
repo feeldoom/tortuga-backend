@@ -227,35 +227,25 @@ app.get('/posts', async (req, res) => {
   }
 });
 
-// Post update
-app.put('/posts/:id', requireAuth, upload.single('photo'), async (req, res) => {
-  try {
-    const { title, text } = req.body;
-    let photoUrl = null;
-
-    if (req.file) {
-      const photo = req.file;
-      const photoName = Date.now() + path.extname(photo.originalname);
-      const photoBuffer = photo.buffer;
-      await bucket.file(photoName).save(photoBuffer, {
-        contentType: photo.mimetype,
-        resumable: false
-      });
-      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
-    }
-
-    const updatedPost = await Post.findByIdAndUpdate(req.params.id, { title, text, photo: photoUrl }, { new: true });
-    res.json(updatedPost);
-  } catch (error) {
-    console.error('Error updating post:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
 // Delete post
+// app.delete('/posts/:id', requireAuth, async (req, res) => {
+//   try {
+//     await Post.findByIdAndDelete(req.params.id);
+//     res.sendStatus(204);
+//   } catch (error) {
+//     console.error('Error deleting post:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// });
 app.delete('/posts/:id', requireAuth, async (req, res) => {
   try {
-    await Post.findByIdAndDelete(req.params.id);
+    const postId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({ message: 'Invalid post ID' });
+    }
+
+    await Post.findByIdAndDelete(postId);
+    
     res.sendStatus(204);
   } catch (error) {
     console.error('Error deleting post:', error);
