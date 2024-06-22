@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const cors = require('cors');
 const cron = require('node-cron');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const User = require('./models/user');
 const Post = require('./models/post'); 
 
@@ -97,6 +98,11 @@ app.use(session({
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use('/api', createProxyMiddleware({
+  target: 'https://tortuga-backend.onrender.com',
+  changeOrigin: true,
+}));
 
 const requireAuth = (req, res, next) => {
   if (!req.session.userId) {
