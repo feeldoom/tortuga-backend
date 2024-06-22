@@ -247,7 +247,7 @@ app.put('/posts/:id', requireAuth, upload.single('photo'), async (req, res) => {
 app.delete('/posts/:id', requireAuth, async (req, res) => {
   try {
     await Post.findByIdAndDelete(req.params.id);
-    res.status(204).end();
+    res.sendStatus(204);
   } catch (error) {
     console.error('Error deleting post:', error);
     res.status(500).json({ message: 'Internal server error' });
