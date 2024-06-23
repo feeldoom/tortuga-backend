@@ -247,7 +247,8 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    await Post.findByIdAndUpdate(postId, { ignored: true });
+    // await Post.findByIdAndUpdate(postId, { ignored: true });
+    await Post.findByIdAndDelete(postId);
     
     res.sendStatus(204);
   } catch (error) {
