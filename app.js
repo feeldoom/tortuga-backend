@@ -12,8 +12,6 @@ const User = require('./models/user');
 const Post = require('./models/post'); 
 const methodOverride = require('method-override');
 
-app.use(methodOverride('_method'));
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -78,6 +76,8 @@ const uploadPostPhoto = multer({
     }
   }
 });
+
+app.use(methodOverride('_method'));
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
