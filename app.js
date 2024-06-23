@@ -257,13 +257,16 @@ app.get('/pdfs', async (req, res) => {
 //   }
 // });
 
-app.post('/uploadPost', requireAuth, uploadPostPhoto.fields([{ name: 'photo', maxCount: 1 }]), async (req, res) => {
+app.post('/uploadPost', requireAuth, uploadPostPhoto.array('photos', 10), async (req, res) => {
   try {
-    const photoFile = req.files['photo'] ? req.files['photo'][0] : null;
-    const photoUrl = photoFile ? await uploadFile(photoFile) : null;
+    const photoFiles = req.files['photos'] || [];
+    const photoUrls = await Promise.all(photoFiles.map(async (photoFile) => {
+      const photoUrl = await uploadFile(photoFile);
+      return photoUrl;
+    }));
 
     const { title, text } = req.body;
-    const newPost = new Post({ title, text, photo: photoUrl });
+    const newPost = new Post({ title, text, photo: photoUrls });
     await newPost.save();
 
     res.redirect(`https://tortuga-front.vercel.app/admin.html?status=success`);
