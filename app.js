@@ -311,6 +311,11 @@ cron.schedule('*/10 * * * *', async () => {
   }
 });
 
+app.get('/check-session', requireAuth, (req, res) => {
+  res.sendStatus(200);
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
