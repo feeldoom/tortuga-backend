@@ -203,18 +203,14 @@ app.post('/uploadImage', requireAuth, upload.single('upload'), async (req, res) 
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const storageBucket = admin.storage().bucket();
-
-    const filePath = 'images/' + Date.now() + '-' + file.originalname;
-
-    await storageBucket.upload(file.path, {
-      destination: filePath,
-      metadata: {
-        contentType: file.mimetype
-      }
+    const photoName = Date.now() + path.extname(file.originalname);
+    const photoBuffer = file.buffer;
+    await bucket.file(photoName).save(photoBuffer, {
+      contentType: photo.mimetype,
+      resumable: false
     });
 
-    const imageUrl = `https://storage.googleapis.com/${storageBucket.name}/${filePath}`;
+    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
 
     res.json({ url: imageUrl });
   } catch (error) {
