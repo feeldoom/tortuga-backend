@@ -36,6 +36,8 @@ admin.initializeApp({
 
 const bucket = admin.storage().bucket();
 
+const basestorage = admin.storage();
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
@@ -281,7 +283,8 @@ async function uploadFile(file) {
       resumable: false
     });
 
-    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    const fileRef = basestorage.bucket().file(fileName);
+    const imageUrl = await fileRef.getDownloadURL();
     return imageUrl;
   } catch (error) {
     console.error('Error uploading file:', error);
