@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const cors = require('cors');
 const cron = require('node-cron');
+const { getStorage, getDownloadURL } = require('firebase-admin/storage');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const User = require('./models/user');
 const Post = require('./models/post'); 
