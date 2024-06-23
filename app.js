@@ -155,7 +155,7 @@ app.post('/login', async (req, res) => {
   if (user) {
     req.session.userId = user._id;
     console.log('Cool!');
-    return res.redirect('https://tortuga-front.vercel.app/admin.html');
+    return res.redirect('/admin.html');
   } else {
     return res.status(401).send('Invalid login');
   }
@@ -328,7 +328,6 @@ cron.schedule('*/10 * * * *', async () => {
 app.get('/check-session', requireAuth, (req, res) => {
   res.sendStatus(200);
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
