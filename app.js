@@ -99,7 +99,7 @@ app.use(session({
   secret: 'TzDFG8O5cF',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { secure: true }
 }));
 
 app.use(express.urlencoded({ extended: true }));
@@ -111,6 +111,7 @@ app.use('/api', createProxyMiddleware({
 }));
 
 const requireAuth = (req, res, next) => {
+  console.log('Checking auth:', req.session.userId);
   if (!req.session.userId) {
     return res.redirect('https://tortuga-front.vercel.app/login.html');
   }
@@ -231,15 +232,6 @@ app.get('/posts', async (req, res) => {
 });
 
 // Delete post
-// app.delete('/posts/:id', requireAuth, async (req, res) => {
-//   try {
-//     await Post.findByIdAndDelete(req.params.id);
-//     res.sendStatus(204);
-//   } catch (error) {
-//     console.error('Error deleting post:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
 app.delete('/posts/:id', requireAuth, async (req, res) => {
   try {
     const postId = req.params.id;
@@ -247,10 +239,10 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    // await Post.findByIdAndUpdate(postId, { ignored: true });
     await Post.findByIdAndDelete(postId);
     
     res.sendStatus(204);
+    res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
   } catch (error) {
     console.error('Error deleting post:', error);
     res.status(500).json({ message: 'Internal server error' });
