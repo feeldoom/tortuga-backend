@@ -93,7 +93,7 @@ app.use(methodOverride('_method'));
 // });
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://tortuga-front.vercel.app");
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
@@ -106,7 +106,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: ["https://tortuga-front.vercel.app"],
+  origin: ["*"],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'access-control-allow-origin']
 }));
