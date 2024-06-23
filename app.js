@@ -123,8 +123,6 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-console.log(req.session.userId);
-
 app.use('/admin', requireAuth);
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
