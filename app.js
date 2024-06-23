@@ -82,37 +82,22 @@ const uploadPostPhoto = multer({
 
 app.use(methodOverride('_method'));
 
-// app.use((req, res, next) => {
-//   res.setheader("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-//   if (req.method === 'OPTIONS') {
-//     return res.sendStatus(200); 
-//   }
-//   next();
-// });
+const corsOptions = {
+  origin: 'https://tortuga-front.vercel.app',
+  credentials: true,
+};
 
-// app.use((req, res, next) => {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader(
-//     "Access-Control-Allow-Methods",
-//     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-//   );
-//   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Access-Control-Allow-Origin");
-//   res.setHeader("Access-Control-Allow-Credentials", "false");
-//   if (req.method === "OPTIONS") {
-//     return res.sendStatus(200);
-//   }
-//   next();
-// });
+app.use(cors(corsOptions));
 
-// app.use(cors({
-//   origin: ["*"],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'Authorization', 'access-control-allow-origin']
-// }));
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://tortuga-front.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
-app.use(cors());
+app.options('*', cors(corsOptions));
 
 app.use(session({
   secret: 'TzDFG8O5cF',
