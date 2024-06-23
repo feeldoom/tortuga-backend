@@ -229,6 +229,7 @@ app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req
       const photo = req.file;
       const photoName = Date.now() + path.extname(photo.originalname);
       const photoBuffer = photo.buffer;
+      console.log('Photo Buffer:', photoBuffer);
       await bucket.file(photoName).save(photoBuffer, {
         contentType: photo.mimetype,
         resumable: false
