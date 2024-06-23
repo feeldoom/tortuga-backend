@@ -10,6 +10,9 @@ const cron = require('node-cron');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const User = require('./models/user');
 const Post = require('./models/post'); 
+const methodOverride = require('method-override');
+
+app.use(methodOverride('_method'));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
