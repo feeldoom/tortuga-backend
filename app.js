@@ -99,6 +99,7 @@ app.use((req, res, next) => {
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Access-Control-Allow-Origin");
+  res.setHeader("Access-Control-Allow-Credentials", "false");
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
