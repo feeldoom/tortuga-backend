@@ -185,6 +185,37 @@ app.post('/upload', requireAuth, upload.fields([{ name: 'menu', maxCount: 1 }, {
   }
 });
 
+app.post('/uploadPhoto', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+
+    const file = req.file;
+    const fileName = Date.now() + '-' + file.originalname;
+    const fileBuffer = file.buffer;
+    const contentType = file.mimetype;
+
+    try {
+      await bucket.file(fileName).save(fileBuffer, {
+        contentType,
+        resumable: false
+      });
+      
+      const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      // Делайте что-то с imageUrl, например, сохраните его в базе данных или отправьте обратно в ответе
+      res.redirect(`https://tortuga-front.vercel.app/admin.html?status=success&imageUrl=${imageUrl}`);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return res.status(500).send('Error uploading file.');
+    }
+  } catch (error) {
+    console.error('Error processing file upload:', error);
+    return res.status(500).send('Error processing file upload.');
+  }
+});
+
+
 app.get('/pdfs', async (req, res) => {
   try {
     const [files] = await bucket.getFiles();
@@ -194,29 +225,6 @@ app.get('/pdfs', async (req, res) => {
     console.error('Error getting PDF files:', error);
     res.status(500).json({ message: 'Unable to get PDF files.' });
   }
-});
-
-app.post('/uploadImage', requireAuth, upload.single('upload'), async (req, res) => {
-  try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    const photoName = Date.now() + path.extname(file.originalname);
-    const photoBuffer = file.buffer;
-    await bucket.file(photoName).save(photoBuffer, {
-      contentType: file.mimetype,
-      resumable: false
-    });
-
-    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
-
-    res.json({ url: imageUrl });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      res.status(500).json({ error: 'Failed to upload image' });
-    }
 });
 
 // New post
