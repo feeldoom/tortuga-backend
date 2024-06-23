@@ -141,6 +141,7 @@ app.post('/login', async (req, res) => {
 
   if (user) {
     req.session.userId = user._id;
+    console.log('Cool!');
     return res.redirect('https://tortuga-front.vercel.app/admin.html');
   } else {
     return res.status(401).send('Invalid login');
