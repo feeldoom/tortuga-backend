@@ -82,25 +82,8 @@ const uploadPostPhoto = multer({
 
 app.use(methodOverride('_method'));
 
-const corsOptions = {
-  origin: 'https://tortuga-front.vercel.app',
-  credentials: true,  // Allow credentials like cookies
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow specific HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow specific headers
-};
 
-app.use(cors(corsOptions));
-
-
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://tortuga-front.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-
-app.options('*', cors(corsOptions));
+app.use(cors());
 
 app.use(session({
   secret: 'TzDFG8O5cF',
@@ -316,7 +299,7 @@ cron.schedule('*/10 * * * *', async () => {
   }
 });
 
-app.get('/check-session', requireAuth, (req, res) => {
+app.get('/check-session', requireAuth, async (req, res) => {
   res.sendStatus(200);
 });
 
