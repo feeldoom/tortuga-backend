@@ -254,7 +254,7 @@ app.get('/pdfs', async (req, res) => {
 //   }
 // });
 
-app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
+app.post('/uploadPost', requireAuth, uploadPostPhoto.fields([{ name: 'photo', maxCount: 1 }]), async (req, res) => {
   try {
     const photoFile = req.files['photo'] ? req.files['photo'][0] : null;
     const photoUrl = photoFile ? await uploadFile(photoFile) : null;
