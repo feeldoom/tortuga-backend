@@ -102,10 +102,7 @@ app.use(session({
   secret: 'TzDFG8O5cF',
   resave: false,
   saveUninitialized: true,
-  cookie: { 
-    secure: false,
-    maxAge: 1000 * 60 * 60 * 24
-  }
+  cookie: { secure: false }
 }));
 
 app.use(express.urlencoded({ extended: true }));
@@ -128,7 +125,7 @@ app.use('/admin', requireAuth);
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 // app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
 
-app.get('/admin.html', requireAuth, (req, res) => {
+app.get('https://tortuga-front.vercel.app/admin.html', requireAuth, (req, res) => {
   if (req.session.userId) {
     res.sendFile(path.join(__dirname, '../frontend/admin.html'));
   } else {
