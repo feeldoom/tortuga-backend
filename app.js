@@ -284,7 +284,7 @@ async function uploadFile(file) {
     });
 
     const fileRef = basestorage.bucket().file(fileName);
-    const imageUrl = await fileRef.getDownloadURL();
+    const imageUrl = await getDownloadURL(fileRef);
     return imageUrl;
   } catch (error) {
     console.error('Error uploading file:', error);
