@@ -99,7 +99,7 @@ app.use(session({
   secret: 'TzDFG8O5cF',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  cookie: { secure: false }
 }));
 
 app.use(express.urlencoded({ extended: true }));
