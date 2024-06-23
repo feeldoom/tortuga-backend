@@ -219,7 +219,7 @@ app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req
 // Get all posts
 app.get('/posts', async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find({ ignored: false });
     res.json(posts);
   } catch (error) {
     console.error('Error getting posts:', error);
@@ -244,7 +244,7 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    await Post.findByIdAndDelete(postId);
+    await Post.findByIdAndUpdate(postId, { ignored: true });
     
     res.sendStatus(204);
   } catch (error) {
@@ -258,7 +258,7 @@ app.get('/keepalive', (req, res) => {
 });
 
 // Schedule the keepalive task
-cron.schedule('*/25 * * * *', async () => {
+cron.schedule('*/10 * * * *', async () => {
   try {
     const response = await fetch(`http://localhost:${PORT}/keepalive`);
     console.log('Keepalive response:', response.status);
