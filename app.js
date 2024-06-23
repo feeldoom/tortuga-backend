@@ -325,7 +325,10 @@ cron.schedule('*/10 * * * *', async () => {
   }
 });
 
-app.get('/check-session', requireAuth, (req, res) => {
+app.get('/check-session', (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('https://tortuga-front.vercel.app/login.html');
+  } else
   res.sendStatus(200);
 });
 
