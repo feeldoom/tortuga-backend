@@ -196,6 +196,33 @@ app.get('/pdfs', async (req, res) => {
   }
 });
 
+app.post('/uploadImage', requireAuth, upload.single('upload'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const storageBucket = admin.storage().bucket();
+
+    const filePath = 'images/' + Date.now() + '-' + file.originalname;
+
+    await storageBucket.upload(file.path, {
+      destination: filePath,
+      metadata: {
+        contentType: file.mimetype
+      }
+    });
+
+    const imageUrl = `https://storage.googleapis.com/${storageBucket.name}/${filePath}`;
+
+    res.json({ url: imageUrl });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
 // New post
 app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
   try {
