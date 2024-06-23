@@ -125,7 +125,7 @@ app.use('/admin', requireAuth);
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 // app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
 
-app.get('https://tortuga-front.vercel.app/admin.html', requireAuth, (req, res) => {
+app.get('/admin.html', requireAuth, (req, res) => {
   if (req.session.userId) {
     res.sendFile(path.join(__dirname, '../frontend/admin.html'));
   } else {
