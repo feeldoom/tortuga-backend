@@ -106,7 +106,7 @@ app.use('/api', createProxyMiddleware({
 
 const requireAuth = (req, res, next) => {
   if (!req.session.userId) {
-    return res.redirect('https://tortuga-front.vercel.app/login.html');
+    return res.send(401);
   }
   next();
 };
