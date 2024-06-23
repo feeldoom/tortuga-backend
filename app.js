@@ -92,7 +92,7 @@ app.use(cors({
 app.use(session({
   secret: 'TzDFG8O5cF',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false }
 }));
 
