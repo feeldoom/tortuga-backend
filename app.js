@@ -281,7 +281,8 @@ async function uploadFile(file) {
       resumable: false
     });
 
-    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    const fileRef = storageRef.child(fileName); 
+    const imageUrl = await fileRef.getDownloadURL();
     return imageUrl;
   } catch (error) {
     console.error('Error uploading file:', error);
