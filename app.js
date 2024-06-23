@@ -210,7 +210,7 @@ app.post('/uploadImage', requireAuth, upload.single('upload'), async (req, res) 
       resumable: false
     });
 
-    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
+    const imageUrl = `https://storage.googleapis.com/tortuga-backend.appspot.com/${photoName}`;
 
     res.json({ url: imageUrl });
   } catch (error) {
