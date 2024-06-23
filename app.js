@@ -84,10 +84,13 @@ app.use(methodOverride('_method'));
 
 const corsOptions = {
   origin: 'https://tortuga-front.vercel.app',
-  credentials: true,
+  credentials: true,  // Allow credentials like cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow specific headers
 };
 
 app.use(cors(corsOptions));
+
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://tortuga-front.vercel.app');
