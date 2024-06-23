@@ -67,7 +67,7 @@ const storage = multer.diskStorage({
 });
 
 const uploadPostPhoto = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
