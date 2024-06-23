@@ -129,7 +129,11 @@ app.use('/uploads', requireAuth, express.static(uploadsDir));
 // app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
 
 app.get('/admin.html', requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+  if (req.session.userId) {
+    res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+  } else {
+    res.redirect('https://tortuga-front.vercel.app/login.html');
+  }
 });
 
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -231,32 +235,6 @@ app.get('/pdfs', async (req, res) => {
 });
 
 // New post
-// app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
-//   try {
-//     const { title, text } = req.body;
-//     let photoUrl = null;
-
-//     if (req.file) {
-//       const photo = req.file;
-//       const photoName = Date.now() + path.extname(photo.originalname);
-//       const photoBuffer = photo.buffer;
-//       console.log('Photo Buffer:', photoBuffer);
-//       await bucket.file(photoName).save(photoBuffer, {
-//         contentType: photo.mimetype,
-//         resumable: false
-//       });
-//       photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
-//     }
-
-//     const newPost = new Post({ title, text, photo: photoUrl });
-//     await newPost.save();
-//     res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
-//   } catch (error) {
-//     console.error('Error creating post:', error);
-//     res.redirect('https://tortuga-front.vercel.app/admin.html?status=error');
-//   }
-// });
-
 app.post('/uploadPost', requireAuth, uploadPostPhoto.fields([{ name: 'photo', maxCount: 1 }]), async (req, res) => {
   try {
     const photoFile = req.files['photo'] ? req.files['photo'][0] : null;
@@ -304,16 +282,7 @@ app.get('/posts', async (req, res) => {
   }
 });
 
-// Delete post
-// app.delete('/posts/:id', requireAuth, async (req, res) => {
-//   try {
-//     await Post.findByIdAndDelete(req.params.id);
-//     res.sendStatus(204);
-//   } catch (error) {
-//     console.error('Error deleting post:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
+//Delete post
 app.delete('/posts/:id', requireAuth, async (req, res) => {
   try {
     const postId = req.params.id;
