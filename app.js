@@ -228,31 +228,66 @@ app.get('/pdfs', async (req, res) => {
 });
 
 // New post
+// app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
+//   try {
+//     const { title, text } = req.body;
+//     let photoUrl = null;
+
+//     if (req.file) {
+//       const photo = req.file;
+//       const photoName = Date.now() + path.extname(photo.originalname);
+//       const photoBuffer = photo.buffer;
+//       console.log('Photo Buffer:', photoBuffer);
+//       await bucket.file(photoName).save(photoBuffer, {
+//         contentType: photo.mimetype,
+//         resumable: false
+//       });
+//       photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
+//     }
+
+//     const newPost = new Post({ title, text, photo: photoUrl });
+//     await newPost.save();
+//     res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
+//   } catch (error) {
+//     console.error('Error creating post:', error);
+//     res.redirect('https://tortuga-front.vercel.app/admin.html?status=error');
+//   }
+// });
+
 app.post('/uploadPost', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
   try {
+    const photoFile = req.files['photo'] ? req.files['photo'][0] : null;
+    const photoUrl = photoFile ? await uploadFile(photoFile) : null;
+
     const { title, text } = req.body;
-    let photoUrl = null;
-
-    if (req.file) {
-      const photo = req.file;
-      const photoName = Date.now() + path.extname(photo.originalname);
-      const photoBuffer = photo.buffer;
-      console.log('Photo Buffer:', photoBuffer);
-      await bucket.file(photoName).save(photoBuffer, {
-        contentType: photo.mimetype,
-        resumable: false
-      });
-      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
-    }
-
     const newPost = new Post({ title, text, photo: photoUrl });
     await newPost.save();
-    res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
+
+    res.redirect(`https://tortuga-front.vercel.app/admin.html?status=success`);
   } catch (error) {
-    console.error('Error creating post:', error);
-    res.redirect('https://tortuga-front.vercel.app/admin.html?status=error');
+    console.error('Error uploading file or creating post:', error);
+    res.redirect(`https://tortuga-front.vercel.app/admin.html?status=error`);
   }
 });
+
+async function uploadFile(file) {
+  const fileName = Date.now() + '-' + file.originalname;
+  const fileBuffer = file.buffer;
+  const contentType = file.mimetype;
+
+  try {
+    await bucket.file(fileName).save(fileBuffer, {
+      contentType,
+      resumable: false
+    });
+
+    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    return imageUrl;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw new Error('Error uploading file.');
+  }
+}
 
 // Get all posts
 app.get('/posts', async (req, res) => {
