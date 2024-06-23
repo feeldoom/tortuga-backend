@@ -206,17 +206,17 @@ app.post('/uploadImage', requireAuth, upload.single('upload'), async (req, res) 
     const photoName = Date.now() + path.extname(file.originalname);
     const photoBuffer = file.buffer;
     await bucket.file(photoName).save(photoBuffer, {
-      contentType: photo.mimetype,
+      contentType: file.mimetype,
       resumable: false
     });
 
-    const imageUrl = `https://storage.googleapis.com/tortuga-backend.appspot.com/${photoName}`;
+    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${photoName}`;
 
     res.json({ url: imageUrl });
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    res.status(500).json({ error: 'Failed to upload image' });
-  }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      res.status(500).json({ error: 'Failed to upload image' });
+    }
 });
 
 // New post
