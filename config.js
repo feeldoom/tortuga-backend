@@ -3,6 +3,6 @@ module.exports = {
     cookieSessionKey: 'session',
 
     devTest: {
-        user: { id: 1788, username: 'admin', password: 'GEHLt7XHxu2u' },
+        user: { id: 1788, username: process.env.USER_NAME , password: process.env.USER_PASS },
     }
 };

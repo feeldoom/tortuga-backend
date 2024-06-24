@@ -8,7 +8,6 @@ const session = require('express-session');
 const cors = require('cors');
 const cron = require('node-cron');
 const { getStorage, getDownloadURL } = require('firebase-admin/storage');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 const Post = require('./models/post'); 
 const methodOverride = require('method-override');
 
@@ -31,8 +30,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const requireAuth = passport.authenticate('jwt', { session: false });
-
-/* ----------------[ Passport Initialization ] ----------------*/
 
 passport.use(
   'local',
@@ -153,8 +150,6 @@ const uploadPostPhoto = multer({
 });
 
 app.use(methodOverride('_method'));
-
-/* ----------------[ App Initialization ] ----------------*/
 
 app.use(cors({
   origin: (origin, callback) => callback(null, true),
