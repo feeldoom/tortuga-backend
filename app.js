@@ -183,7 +183,7 @@ app.use('/admin', requireAuth);
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 
-app.get('/admin', requireAuth, (req, res) => {
+app.get('/me', requireAuth, (req, res) => {
   res.json(req.user);
 });
 
