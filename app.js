@@ -14,6 +14,7 @@ const Post = require('./models/post');
 const methodOverride = require('method-override');
 const passport = require('./passport');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
