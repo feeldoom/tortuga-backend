@@ -176,7 +176,7 @@ app.post('/login', passport.authenticate('local', { session: false }), async (re
   const token = req.user;
 
   res
-    .cookie(config.cookieSessionKey, token, { httpOnly: true, secure: false })
+    .cookie(config.cookieSessionKey, token, { httpOnly: true, secure: true, sameSite: 'none' })
     .json({ token });
 });
 
