@@ -13,8 +13,77 @@ const User = require('./models/user');
 const Post = require('./models/post'); 
 const methodOverride = require('method-override');
 
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const { Strategy: LocalStrategy } = require('passport-local');
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
+
+const config = require('./config');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const requireAuth = passport.authenticate('jwt', { session: false });
+
+/* ----------------[ Passport Initialization ] ----------------*/
+
+passport.use(
+  'local',
+  new LocalStrategy(
+    (username, password, done) => {
+      const { user } = config.devTest;
+
+      if (
+        username !== user.username ||
+        password !== user.password
+      ) {
+        done(new APIError(401, 'Invalid username or password'));
+      }
+
+      // Generates new JWT token
+      const token = jwt.sign({ id: user.id }, config.jwtSecret, { expiresIn: '1h' });
+
+      done(null, token);
+    }
+  )
+);
+
+passport.use(
+  'jwt',
+  new JwtStrategy(
+    {
+      secretOrKey: config.jwtSecret,
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        // Extract JWT from auth header
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // Extract JWT from cookies
+        (req) => req.cookies[config.cookieSessionKey]
+      ]),
+    },
+    (payload, done) => {
+      const { id: userId } = payload;
+
+      if (userId && userId === config.devTest.user.id) {
+        return done(null, config.devTest.user);
+      } else {
+        return done(new APIError(401, 'Validation Failed'), false);
+      }
+    }
+  )
+);
+
+// Used to serialize user (from object to id)
+passport.serializeUser((user, done) => {
+  done(null, user.id)
+});
+
+// Used to deserialize user (from id to object)
+passport.deserializeUser((id, done) => {
+  const user = { id, username: 'User' }; // Replace this part with real user find logic
+
+  done(null, user);
+});
 
 const serviceAccount = {
   "type": "service_account",
@@ -82,34 +151,33 @@ const uploadPostPhoto = multer({
 
 app.use(methodOverride('_method'));
 
+/* ----------------[ App Initialization ] ----------------*/
+
 app.use(cors({
-  origin: '*',
+  // Similar to the '*' wildcard, but bypasses cors restrictions
+  origin: (origin, callback) => callback(null, true),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(session({
-  secret: 'TzDFG8O5cF',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
-
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(passport.initialize());
 
 app.use('/api', createProxyMiddleware({
   target: 'https://tortuga-backend.onrender.com',
   changeOrigin: true,
 }));
 
-const requireAuth = (req, res, next) => {
-  if (!req.session.userId) {
-    return res.send(401);
-  }
-  next();
-};
+// const requireAuth = (req, res, next) => {
+//   if (!req.session.userId) {
+//     return res.send(401);
+//   }
+//   next();
+// };
 
 app.use('/admin', requireAuth);
 
@@ -125,20 +193,12 @@ app.get('/admin.html', requireAuth, (req, res) => {
 
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username, password });
+app.post('/login', passport.authenticate('local', { session: false }), async (req, res) => {
+  const token = req.user;
 
-  if (user) {
-    req.session.userId = user._id;
-    if (session.userId == "undefined"){
-      console.log("no userId");
-      console.log(session.userId);
-    }
-    return res.redirect('https://tortuga-front.vercel.app/admin.html');
-  } else {
-    return res.status(401).send('Invalid login');
-  }
+  res
+    .cookie(config.cookieSessionKey, token, { httpOnly: true, secure: false })
+    .json({ token });
 });
 
 app.post('/upload', requireAuth, upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res) => {
