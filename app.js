@@ -12,9 +12,6 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const User = require('./models/user');
 const Post = require('./models/post'); 
 const methodOverride = require('method-override');
-const passport = require('./passport');
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -86,8 +83,7 @@ const uploadPostPhoto = multer({
 app.use(methodOverride('_method'));
 
 app.use(cors({
-  // Similar to the '*' wildcard, but bypasses cors restrictions
-  origin: (origin, callback) => callback(null, true),
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -96,23 +92,24 @@ app.use(cors({
 app.use(session({
   secret: 'TzDFG8O5cF',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: { secure: false }
 }));
 
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-app.use(passport.initialize());
 
 app.use('/api', createProxyMiddleware({
   target: 'https://tortuga-backend.onrender.com',
   changeOrigin: true,
 }));
 
-const requireAuth = passport.authenticate('jwt', { session: false });
-
+const requireAuth = (req, res, next) => {
+  if (!req.session.userId) {
+    return res.send(401);
+  }
+  next();
+};
 
 app.use('/admin', requireAuth);
 
@@ -134,8 +131,7 @@ app.post('/login', async (req, res) => {
   const user = await User.findOne({ username, password });
 
   if (user) {
-    const token = jwt.sign({ id: user._id }, process.env.jwtSecret, { expiresIn: '1h' });
-    res.cookie('jwt', token, { httpOnly: true, secure: false }); // Set secure to true in production
+    req.session.userId = user._id;
     console.log('Cool!');
     return res.redirect('https://tortuga-front.vercel.app/admin.html');
   } else {
