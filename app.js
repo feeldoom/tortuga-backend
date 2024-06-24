@@ -114,7 +114,6 @@ const requireAuth = (req, res, next) => {
 app.use('/admin', requireAuth);
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
-// app.use('/admin.html', requireAuth, express.static(path.join(__dirname, '../frontend/admin.html')));
 
 app.get('/admin.html', requireAuth, (req, res) => {
   if (req.session.userId) {
@@ -132,8 +131,10 @@ app.post('/login', async (req, res) => {
 
   if (user) {
     req.session.userId = user._id;
-    console.log('Cool!');
-    console.log(session.userId);
+    if (session.userId == "undefined"){
+      console.log("no userId");
+      console.log(session.userId);
+    }
     return res.redirect('https://tortuga-front.vercel.app/admin.html');
   } else {
     return res.status(401).send('Invalid login');
@@ -179,48 +180,6 @@ app.post('/upload', requireAuth, upload.fields([{ name: 'menu', maxCount: 1 }, {
     res.redirect('https://tortuga-front.vercel.app/admin.html?status=success');
   } catch (error) {
     res.redirect('https://tortuga-front.vercel.app/admin.html?status=error');
-  }
-});
-
-app.post('/uploadPhoto', requireAuth, uploadPostPhoto.single('photo'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).send('No file uploaded.');
-    }
-
-    const file = req.file;
-    const fileName = Date.now() + '-' + file.originalname;
-    const fileBuffer = file.buffer;
-    const contentType = file.mimetype;
-
-    try {
-      await bucket.file(fileName).save(fileBuffer, {
-        contentType,
-        resumable: false
-      });
-      
-      const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      // Делайте что-то с imageUrl, например, сохраните его в базе данных или отправьте обратно в ответе
-      res.redirect(`https://tortuga-front.vercel.app/admin.html?status=success&imageUrl=${imageUrl}`);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      return res.status(500).send('Error uploading file.');
-    }
-  } catch (error) {
-    console.error('Error processing file upload:', error);
-    return res.status(500).send('Error processing file upload.');
-  }
-});
-
-
-app.get('/pdfs', async (req, res) => {
-  try {
-    const [files] = await bucket.getFiles();
-    const pdfFiles = files.filter(file => file.name.endsWith('.pdf')).map(file => file.name);
-    res.json({ files: pdfFiles });
-  } catch (error) {
-    console.error('Error getting PDF files:', error);
-    res.status(500).json({ message: 'Unable to get PDF files.' });
   }
 });
 
@@ -280,7 +239,6 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid post ID' });
     }
 
-    // await Post.findByIdAndUpdate(postId, { ignored: true });
     await Post.findByIdAndDelete(postId);
     
     res.sendStatus(204);
@@ -294,7 +252,6 @@ app.get('/keepalive', (req, res) => {
   res.sendStatus(200);
 });
 
-// Schedule the keepalive task
 cron.schedule('*/10 * * * *', async () => {
   try {
     const response = await fetch(`http://localhost:${PORT}/keepalive`);
@@ -307,7 +264,6 @@ cron.schedule('*/10 * * * *', async () => {
 app.get('/check-session', requireAuth, async (req, res) => {
   res.sendStatus(200);
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
