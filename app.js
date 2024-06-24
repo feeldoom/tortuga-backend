@@ -183,12 +183,8 @@ app.use('/admin', requireAuth);
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 
-app.get('/admin.html', requireAuth, (req, res) => {
-  if (req.session.userId) {
-    res.sendFile(path.join(__dirname, '../frontend/admin.html'));
-  } else {
-    res.redirect('https://tortuga-front.vercel.app/login.html');
-  }
+app.get('/admin', requireAuth, (req, res) => {
+  res.json(req.user);
 });
 
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -321,9 +317,9 @@ cron.schedule('*/10 * * * *', async () => {
   }
 });
 
-app.get('/check-session', requireAuth, async (req, res) => {
-  res.sendStatus(200);
-});
+// app.get('/check-session', requireAuth, async (req, res) => {
+//   res.sendStatus(200);
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
