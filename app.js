@@ -281,6 +281,7 @@ app.delete('/posts/:id', requireAuth, async (req, res) => {
     await Post.findByIdAndDelete(postId);
     
     res.sendStatus(204);
+    res.redirect(`https://tortuga-front.vercel.app/admin.html`);
   } catch (error) {
     console.error('Error deleting post:', error);
     res.status(500).json({ message: 'Internal server error' });
