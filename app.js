@@ -9,7 +9,6 @@ const cors = require('cors');
 const cron = require('node-cron');
 const { getStorage, getDownloadURL } = require('firebase-admin/storage');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const User = require('./models/user');
 const Post = require('./models/post'); 
 const methodOverride = require('method-override');
 
@@ -20,6 +19,13 @@ const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
 const config = require('./config');
+
+class APIError extends Error {
+  constructor(status, message = '') {
+    super(message);
+    this.status = status;
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -162,13 +168,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(passport.initialize());
-
-app.use('/api', createProxyMiddleware({
-  target: 'https://tortuga-backend.onrender.com',
-  changeOrigin: true,
-}));
-
-app.use('/admin', requireAuth);
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 
@@ -314,10 +313,6 @@ app.use((err, req, res, next) => {
 
   res.sendStatus(500);
 });
-
-// app.get('/check-session', requireAuth, async (req, res) => {
-//   res.sendStatus(200);
-// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
