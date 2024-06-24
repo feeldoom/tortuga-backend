@@ -134,7 +134,7 @@ app.post('/login', async (req, res) => {
   const user = await User.findOne({ username, password });
 
   if (user) {
-    const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.jwtSecret, { expiresIn: '1h' });
     res.cookie('jwt', token, { httpOnly: true, secure: false }); // Set secure to true in production
     console.log('Cool!');
     return res.redirect('https://tortuga-front.vercel.app/admin.html');
