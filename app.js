@@ -41,7 +41,6 @@ passport.use(
         done(new APIError(401, 'Invalid username or password'));
       }
 
-      // Generates new JWT token
       const token = jwt.sign({ id: user.id }, config.jwtSecret, { expiresIn: '1h' });
 
       done(null, token);
@@ -55,9 +54,9 @@ passport.use(
     {
       secretOrKey: config.jwtSecret,
       jwtFromRequest: ExtractJwt.fromExtractors([
-        // Extract JWT from auth header
+
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-        // Extract JWT from cookies
+
         (req) => req.cookies[config.cookieSessionKey]
       ]),
     },
@@ -73,14 +72,12 @@ passport.use(
   )
 );
 
-// Used to serialize user (from object to id)
 passport.serializeUser((user, done) => {
   done(null, user.id)
 });
 
-// Used to deserialize user (from id to object)
 passport.deserializeUser((id, done) => {
-  const user = { id, username: 'User' }; // Replace this part with real user find logic
+  const user = { id, username: 'User' };
 
   done(null, user);
 });
@@ -154,7 +151,6 @@ app.use(methodOverride('_method'));
 /* ----------------[ App Initialization ] ----------------*/
 
 app.use(cors({
-  // Similar to the '*' wildcard, but bypasses cors restrictions
   origin: (origin, callback) => callback(null, true),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -172,18 +168,11 @@ app.use('/api', createProxyMiddleware({
   changeOrigin: true,
 }));
 
-// const requireAuth = (req, res, next) => {
-//   if (!req.session.userId) {
-//     return res.send(401);
-//   }
-//   next();
-// };
-
 app.use('/admin', requireAuth);
 
 app.use('/uploads', requireAuth, express.static(uploadsDir));
 
-app.get('/me', requireAuth, (req, res) => {
+app.get('/me', requireAuth, async (req, res) => {
   res.json(req.user);
 });
 
