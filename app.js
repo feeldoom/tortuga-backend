@@ -317,6 +317,15 @@ cron.schedule('*/10 * * * *', async () => {
   }
 });
 
+app.use((err, req, res, next) => {
+  if (err instanceof APIError) {
+    res.status(err.status).json({ err: err.message });
+    return;
+  }
+
+  res.sendStatus(500);
+});
+
 // app.get('/check-session', requireAuth, async (req, res) => {
 //   res.sendStatus(200);
 // });
