@@ -4,6 +4,7 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cron = require('node-cron');
+const admin = require('firebase-admin');
 const methodOverride = require('method-override');
 const APIError = require('./errors/api.error');
 const cookieParser = require('cookie-parser');
@@ -12,8 +13,33 @@ const fileRoute = require('./routes/file');
 const userRoute = require('./routes/user');
 const postRoute = require('./routes/post');
 
+const config = require('./config');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+async function initAdminUser() {
+  const { ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
+
+  if ( !ADMIN_USERNAME || !ADMIN_PASSWORD ) {
+    return;
+  }
+
+  const userService = require('./services/user.services');
+  const admin = await userService.getUserByUsername(ADMIN_USERNAME);
+
+  if (!admin) {
+    await userService.createUser({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
+    console.log('Admin user created!');
+  }
+}
+
+initAdminUser();
+
+admin.initializeApp({
+  credential: admin.credential.cert(config.fireBase),
+  storageBucket: config.fireBase.bucket
+});
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('▶ \x1b[32m[OK]\x1b[0m MongoDB connected'))
@@ -27,7 +53,7 @@ if (!fs.existsSync(uploadsDir)) {
 app.use(methodOverride('_method'));
 
 app.use(cors({
-  origin: (origin, callback) => callback(null, true),
+  origin: (_origin, callback) => callback(null, true),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],

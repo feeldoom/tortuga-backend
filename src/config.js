@@ -4,11 +4,8 @@ module.exports = {
 
     filesDir: 'uploads',
 
-    devTest: {
-        user: { id: 1788, username: process.env.USER_NAME , password: process.env.USER_PASS },
-    },
-
     fireBase: {
+        "bucket": process.env.FIREBASE_BUCKET,
         "type": "service_account",
         "project_id": process.env.FIREBASE_PROJECT_ID,
         "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,

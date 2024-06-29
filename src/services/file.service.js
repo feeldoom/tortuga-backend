@@ -54,8 +54,12 @@ class FileService {
     }
 
     async getFileReadStream(fileName) {
-        // const filePath = resolveFilePath(fileName);
         const file = await File.findOne({ fileName });
+
+        // if file is not exist
+        if (!file) {
+            return null;
+        }
 
         const filePath = resolveFilePath(file.firebasePath);
 

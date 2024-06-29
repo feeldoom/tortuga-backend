@@ -1,26 +1,16 @@
 const express = require('express');
 const multer = require('multer');
-const firebaseStorage = require('multer-firebase-storage');
+const firebaseStorage = require('../storages/firebase.storage');
 
 const fileService = require('../services/file.service');
 const requireAuth = require('../middlewares/requireAuth');
 const APIError = require('../errors/api.error');
-const config = require('../config');
 
 const route = express.Router();
 
 //Multer Firebase Storage settings
 const upload = multer({
-    storage: firebaseStorage({
-        bucketName: 'tortuga-backend.appspot.com',
-        credentials: {
-            clientEmail: config.fireBase.client_email,
-            privateKey: config.fireBase.private_key,
-            projectId: config.fireBase.project_id
-        },
-        unique: true,
-        // public: true
-    })
+    storage: firebaseStorage
 });
 
 // Stream files by filename
@@ -54,8 +44,8 @@ route.post('/menu', requireAuth(), upload.fields([{ name: 'menu', maxCount: 1 },
 
     const resolveFileNameByField = (field) => {
         switch (field) {
-            case 'bar': return 'bar_test.pdf';
-            case 'menu': return 'menu_test.pdf';
+            case 'bar': return 'bar.pdf';
+            case 'menu': return 'menu.pdf';
         }
         return null;
     };

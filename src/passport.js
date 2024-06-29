@@ -1,24 +1,24 @@
 const passport = require('passport');
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const jwt = require('jsonwebtoken');
 const config = require('./config');
 const APIError = require('./errors/api.error');
+const userService = require('./services/user.services');
 
 passport.use(
     'local',
     new LocalStrategy(
-        (username, password, done) => {
-            const { user } = config.devTest;
+        async (username, password, done) => {
 
-            if (
-                username !== user.username ||
-                password !== user.password
-            ) {
-                done(new APIError(401, 'Invalid username or password'));
+            // find username and password from mongodb collection
+            const user = await userService.authUser(username, password);
+                
+            if (!user) {
+                done(new APIError(401, "Invalid username or password"));
+                return;
             }
-
-            const token = jwt.sign({ id: user.id }, config.jwtSecret, { expiresIn: '1h' });
+            
+            const token = userService.createAuthToken(user._id.toString());
 
             done(null, token);
         }
@@ -39,11 +39,11 @@ passport.use(
                 }
             ]),
         },
-        (payload, done) => {
-            const { id: userId } = payload;
+        async (payload, done) => {
+            const user = await userService.getUser(payload.id);
 
-            if (userId && userId === config.devTest.user.id) {
-                return done(null, config.devTest.user);
+            if (user) {
+                return done(null, user);
             } else {
                 return done(new APIError(401, 'Validation Failed'), false);
             }
@@ -52,7 +52,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-    done(null, user.id);
+    done(null, user._id.toString());
 });
 
 passport.deserializeUser((id, done) => {
