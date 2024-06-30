@@ -37,21 +37,26 @@ route.get('/:fileName', async (req, res, next) => {
 });
 
 // Middleware for posting menu pdf files
-route.post('/menu', requireAuth(), upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res) => {
+route.post('/menu', requireAuth(), upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res, next) => {
     if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('No files uploaded.');
+        next(new APIError(400, 'File Not Uploaded!'));
+        return;
     }
 
-    const resolveFileNameByField = (field) => {
-        switch (field) {
-            case 'bar': return 'bar.pdf';
-            case 'menu': return 'menu.pdf';
-        }
-        return null;
-    };
+    /* test other cases */
+    // const resolveFileNameByField = (field) => {
+    //     switch (field) {
+    //         case 'bar': return 'bar.pdf';
+    //         case 'menu': return 'menu.pdf';
+    //     }
+    //     return null;
+    // };
 
     for (const [key, file] of Object.entries(req.files)) {
-        const fileName = resolveFileNameByField(key);
+        
+        // const fileName = resolveFileNameByField(key);
+        
+        const fileName = `${key}.pdf`;
         const [{ path: firebasePath }] = file;
         
         await fileService.deleteFile({ fileName });

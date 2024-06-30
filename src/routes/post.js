@@ -49,27 +49,29 @@ route.post('/', requireAuth(), uploadPostPhoto.single('photo'), async (req, res,
 });
 
 // Get all posts
-route.get('/', async (req, res) => {
+route.get('/', async (req, res, next) => {
     try {
         const posts = await Post.find({ ignored: false });
         res.json(posts);
     } catch (error) {
         console.error('Error getting posts:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(new APIError(502, 'Server error.'));
     }
 });
 
 // Delete post
-route.delete('/:id', requireAuth(), async (req, res) => {
+route.delete('/:id', requireAuth(), async (req, res, next) => {
     try {
         const postId = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(postId)) {
-            return res.status(400).json({ message: 'Invalid post ID' });
+            next(new APIError(400, 'Invalid post ID'));
+            return;
         }
 
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
+            next(new APIError(404, 'Post not found'));
+            return;
         }
 
         await Post.findByIdAndDelete(postId);
@@ -80,14 +82,15 @@ route.delete('/:id', requireAuth(), async (req, res) => {
                 await fileService.deleteFile({ fileName: post.photo });
             } catch (error) {
                 console.error('Error deleting associated photo:', error);
-                return res.status(500).json({ message: 'Failed to delete associated photo' });
+                next(new APIError(500, 'Failed to delete associated photo'));
+                return;
             }
         }
 
         res.sendStatus(204);
     } catch (error) {
         console.error('▶ [X] Error deleting post:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(new APIError(500, 'Internal server error'));
     }
 });
 

@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cron = require('node-cron');
 const admin = require('firebase-admin');
-const methodOverride = require('method-override');
 const APIError = require('./errors/api.error');
 const cookieParser = require('cookie-parser');
 const passport = require('./passport');
@@ -49,8 +48,6 @@ const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
-
-app.use(methodOverride('_method'));
 
 app.use(cors({
   origin: (_origin, callback) => callback(null, true),
