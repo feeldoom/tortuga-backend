@@ -37,7 +37,7 @@ route.get('/:fileName', async (req, res, next) => {
 });
 
 // Middleware for posting menu pdf files
-route.post('/menu', requireAuth(), upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }]), async (req, res, next) => {
+route.post('/menu', requireAuth(), upload.fields([{ name: 'menu', maxCount: 1 }, { name: 'bar', maxCount: 1 }, { name: 'menu_sr', maxCount: 1 }, { name: 'bar_sr', maxCount: 1 }, { name: 'menu_ru', maxCount: 1 }, { name: 'bar_ru', maxCount: 1 }]), async (req, res, next) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         next(new APIError(400, 'File Not Uploaded!'));
         return;
